@@ -1,28 +1,25 @@
 package com.feil.tymek.xcodejava.controller;
 
+import com.feil.tymek.xcodejava.exception.EmptyListException;
+import com.feil.tymek.xcodejava.service.SortingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.feil.tymek.xcodejava.model.Request;
-import java.util.Comparator;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.*;
+import com.feil.tymek.xcodejava.dto.NumbersToBeSorted;
 
 @RestController
 @RequestMapping("/numbers")
 public class NumbersController {
 
+    @Autowired
+    private SortingService sortingService;
+
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/sort-command")
-    public ResponseEntity sortIntegerList(@RequestBody Request request) {
-
-        if (request.getOrder().contains("ASC")) {
-            return ResponseEntity.ok(request.getNumbers().stream().sorted(Comparator.comparingInt(i -> i)).collect(Collectors.toList()));
-        } else if (request.getOrder().contains("DESC")) {
-            return ResponseEntity.ok(request.getNumbers().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList()));
-        } else {
-            return null;
+    public ResponseEntity sortCommand(@RequestBody NumbersToBeSorted numbersToBeSorted) throws EmptyListException {
+        if (numbersToBeSorted.getNumbers().isEmpty()) {
+            throw new EmptyListException();
         }
+        return sortingService.sortIntegerList(numbersToBeSorted);
     }
-
 }
